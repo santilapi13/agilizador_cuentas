@@ -39,10 +39,12 @@ class App:
 
     def generar_problema(self):
         self.valor_a_cobrar = 0
-        for i in range(random.randint(1, 3)):
-            precios_unicos = list(set(self.precios))
-            self.valor_a_cobrar += random.choice(precios_unicos)
-        self.label_cobrar.configure(text="Cobrar: $" + str(self.valor_a_cobrar))
+        while self.valor_a_cobrar == 0 or self.valor_a_cobrar > 25000:
+            self.valor_a_cobrar = 0
+            for i in range(random.randint(1, 3)):
+                precios_unicos = list(set(self.precios))
+                self.valor_a_cobrar += random.choice(precios_unicos)
+            self.label_cobrar.configure(text="Cobrar: $" + str(self.valor_a_cobrar))
 
         self.valor_recibido = 0
         self.billetes_recibidos = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
@@ -52,20 +54,20 @@ class App:
         billetes_dosmil = valor_redondo / 2000
         # Si no es múltiplo de 2000, agrego 1 billete de 1000 o 2 de 500
         if billetes_dosmil != valor_redondo // 2000:
-            como_pagan = random.randint(0, 1)
-            if como_pagan == 0:
+            como_pagan = random.randint(0, 5)
+            if como_pagan < 4:
                 self.billetes_recibidos[6][1] += 1
-            elif como_pagan == 1:
+            else:
                 self.billetes_recibidos[5][1] += 2
 
         # Luego, agrego billetes de 2000, 1000 o 500 hasta llegar a cubrir el valor redondo
         for i in range(valor_redondo // 2000):
-            como_pagan = random.randint(0, 2)
-            if como_pagan == 0:
+            como_pagan = random.randint(0, 10)
+            if como_pagan < 6:
                 self.billetes_recibidos[7][1] += 1
-            elif como_pagan == 1:
+            elif como_pagan < 10:
                 self.billetes_recibidos[6][1] += 2
-            elif como_pagan == 2:
+            else:
                 self.billetes_recibidos[5][1] += 4
 
         # Agrego 1 billete de 500 o 1 de 1000. 
