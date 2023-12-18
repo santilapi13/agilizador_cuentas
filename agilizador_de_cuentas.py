@@ -80,7 +80,23 @@ class App:
         self.como_pagan.configure(text=f"Te pagan con:\n{self.billetes_recibidos[7][1]} de $2000\n{self.billetes_recibidos[6][1]} de $1000\n{self.billetes_recibidos[5][1]} de $500")
         
     def enviar_solucion(self):
-        pass
+        vuelto_real = self.valor_recibido - self.valor_a_cobrar
+
+        for billete in self.billetes_seleccionados:
+            vuelto_real -= billete[0] * billete[1]
+        
+        if vuelto_real != 0:
+            CTkMessagebox(title="Error", message="El vuelto indicado no es correcto", icon="cancel")
+            return
+        
+        CTkMessagebox(title="¡Bien!", message="El vuelto indicado es correcto", icon="check")
+        self.billetes_recibidos = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.billetes_seleccionados = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.valor_a_cobrar = 0
+        self.valor_recibido = 0
+        for tipo_billete in range(8):
+            self.labels_billetes_seleccionados[tipo_billete].configure(text=str(self.billetes_seleccionados[tipo_billete][1]))
+        self.generar_problema()
 
     def restar_billete(self, tipo_billete):
         if self.billetes_seleccionados[tipo_billete][1] <= 0:
