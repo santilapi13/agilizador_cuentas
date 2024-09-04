@@ -7,7 +7,7 @@ from CTkMessagebox import CTkMessagebox
 import random
 import csv
 
-ARCHIVO_PRECIOS = "precios.csv"
+PRICES_FILE = "prices.csv"
 
 class App:
     def __init__(self):
@@ -20,96 +20,96 @@ class App:
 
         self.buttons = []
 
-        self.billetes_recibidos = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
-        self.billetes_seleccionados = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
-        self.labels_billetes_seleccionados = []
-        self.valor_a_cobrar = 0
-        self.valor_recibido = 0
-        self.precios = []
-        self.cargar_precios()
+        self.received_bills = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.selected_bills = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.labels_selected_bills = []
+        self.to_charge_value = 0
+        self.received_value = 0
+        self.prices = []
+        self.load_prices()
 
         self.create_ui()
     
-    def cargar_precios(self):
-        with open(ARCHIVO_PRECIOS, encoding='utf-8') as f:
+    def load_prices(self):
+        with open(PRICES_FILE, encoding='utf-8') as f:
             reader = csv.reader(f, delimiter=';')
             for row in reader:
-                self.precios.append(int(row[1].replace('$', '').replace(',', '.')))
-        print(self.precios)
+                self.prices.append(int(row[1].replace('$', '').replace(',', '.')))
+        print(self.prices)
 
-    def generar_problema(self):
-        self.valor_a_cobrar = 0
-        while self.valor_a_cobrar == 0 or self.valor_a_cobrar > 25000:
-            self.valor_a_cobrar = 0
+    def generate_problem(self):
+        self.to_charge_value = 0
+        while self.to_charge_value == 0 or self.to_charge_value > 25000:
+            self.to_charge_value = 0
             for i in range(random.randint(1, 3)):
-                precios_unicos = list(set(self.precios))
-                self.valor_a_cobrar += random.choice(precios_unicos)
-            self.label_cobrar.configure(text="Cobrar: $" + str(self.valor_a_cobrar))
+                prices_unicos = list(set(self.prices))
+                self.to_charge_value += random.choice(prices_unicos)
+            self.label_cobrar.configure(text="Cobrar: $" + str(self.to_charge_value))
 
-        self.valor_recibido = 0
-        self.billetes_recibidos = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.received_value = 0
+        self.received_bills = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
 
-        valor_redondo = (self.valor_a_cobrar // 1000) * 1000
-        centenas = ((self.valor_a_cobrar - valor_redondo) // 100) * 100
-        billetes_dosmil = valor_redondo / 2000
+        whole_value = (self.to_charge_value // 1000) * 1000
+        centenas = ((self.to_charge_value - whole_value) // 100) * 100
+        two_thousand_bills = whole_value / 2000
         # Si no es múltiplo de 2000, agrego 1 billete de 1000 o 2 de 500
-        if billetes_dosmil != valor_redondo // 2000:
-            como_pagan = random.randint(0, 5)
-            if como_pagan < 4:
-                self.billetes_recibidos[6][1] += 1
+        if two_thousand_bills != whole_value // 2000:
+            payment_method = random.randint(0, 5)
+            if payment_method < 4:
+                self.received_bills[6][1] += 1
             else:
-                self.billetes_recibidos[5][1] += 2
+                self.received_bills[5][1] += 2
 
         # Luego, agrego billetes de 2000, 1000 o 500 hasta llegar a cubrir el valor redondo
-        for i in range(valor_redondo // 2000):
-            como_pagan = random.randint(0, 10)
-            if como_pagan < 6:
-                self.billetes_recibidos[7][1] += 1
-            elif como_pagan < 10:
-                self.billetes_recibidos[6][1] += 2
+        for i in range(whole_value // 2000):
+            payment_method = random.randint(0, 10)
+            if payment_method < 6:
+                self.received_bills[7][1] += 1
+            elif payment_method < 10:
+                self.received_bills[6][1] += 2
             else:
-                self.billetes_recibidos[5][1] += 4
+                self.received_bills[5][1] += 4
 
         # Agrego 1 billete de 500 o 1 de 1000. 
         if centenas < 500:
-            self.billetes_recibidos[5][1] += 1
+            self.received_bills[5][1] += 1
         else:
-            self.billetes_recibidos[6][1] += 1
+            self.received_bills[6][1] += 1
 
-        for billete in self.billetes_recibidos:
-            self.valor_recibido += billete[0] * billete[1]
+        for bill in self.received_bills:
+            self.received_value += bill[0] * bill[1]
 
-        self.como_pagan.configure(text=f"Te pagan con:\n{self.billetes_recibidos[7][1]} de $2000\n{self.billetes_recibidos[6][1]} de $1000\n{self.billetes_recibidos[5][1]} de $500")
+        self.payment_method.configure(text=f"Te pagan con:\n{self.received_bills[7][1]} de $2000\n{self.received_bills[6][1]} de $1000\n{self.received_bills[5][1]} de $500")
         
-    def enviar_solucion(self):
-        vuelto_real = self.valor_recibido - self.valor_a_cobrar
+    def send_solution(self):
+        real_change = self.received_value - self.to_charge_value
 
-        for billete in self.billetes_seleccionados:
-            vuelto_real -= billete[0] * billete[1]
+        for bill in self.selected_bills:
+            real_change -= bill[0] * bill[1]
         
-        if vuelto_real != 0:
+        if real_change != 0:
             CTkMessagebox(title="Error", message="El vuelto indicado no es correcto", icon="cancel")
             return
         
         CTkMessagebox(title="¡Bien!", message="El vuelto indicado es correcto", icon="check")
-        self.billetes_recibidos = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
-        self.billetes_seleccionados = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
-        self.valor_a_cobrar = 0
-        self.valor_recibido = 0
-        for tipo_billete in range(8):
-            self.labels_billetes_seleccionados[tipo_billete].configure(text=str(self.billetes_seleccionados[tipo_billete][1]))
-        self.generar_problema()
+        self.received_bills = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.selected_bills = [[10, 0], [20, 0], [50, 0], [100, 0], [200, 0], [500, 0], [1000, 0], [2000, 0]]
+        self.to_charge_value = 0
+        self.received_value = 0
+        for bill_type in range(8):
+            self.labels_selected_bills[bill_type].configure(text=str(self.selected_bills[bill_type][1]))
+        self.generate_problem()
 
-    def restar_billete(self, tipo_billete):
-        if self.billetes_seleccionados[tipo_billete][1] <= 0:
+    def substract_bill(self, bill_type):
+        if self.selected_bills[bill_type][1] <= 0:
             return
         
-        self.billetes_seleccionados[tipo_billete][1] -= 1
-        self.labels_billetes_seleccionados[tipo_billete].configure(text=str(self.billetes_seleccionados[tipo_billete][1]))
+        self.selected_bills[bill_type][1] -= 1
+        self.labels_selected_bills[bill_type].configure(text=str(self.selected_bills[bill_type][1]))
 
-    def sumar_billete(self, tipo_billete):
-        self.billetes_seleccionados[tipo_billete][1] += 1
-        self.labels_billetes_seleccionados[tipo_billete].configure(text=str(self.billetes_seleccionados[tipo_billete][1]))
+    def add_bill(self, bill_type):
+        self.selected_bills[bill_type][1] += 1
+        self.labels_selected_bills[bill_type].configure(text=str(self.selected_bills[bill_type][1]))
 
 
     def create_ui(self):
@@ -136,7 +136,7 @@ class App:
             self.sub_contenedor1,
             text="Generar",
             font=("Verdana", 20),
-            command=self.generar_problema,
+            command=self.generate_problem,
         )
         self.button_generar.pack(pady=25)
 
@@ -148,12 +148,12 @@ class App:
         )
         self.label_cobrar.pack(pady=10, padx=20, side=customtkinter.LEFT)
 
-        self.como_pagan = customtkinter.CTkLabel(
+        self.payment_method = customtkinter.CTkLabel(
             self.sub_contenedor1,
             text="Te pagan con: -",
             font=("Verdana", 20),
         )
-        self.como_pagan.pack(
+        self.payment_method.pack(
             pady=10, padx=15, side=customtkinter.RIGHT
         )
 
@@ -175,7 +175,7 @@ class App:
         for columna in range(8):
             billete_label = customtkinter.CTkLabel(
                 self.sub_contenedor_billetes,
-                text=str(self.billetes_seleccionados[columna][0]),
+                text=str(self.selected_bills[columna][0]),
                 font=("Verdana", 20),
             )
             billete_label.grid(row=0, column=1+columna*3, padx=5, pady=30)
@@ -188,17 +188,17 @@ class App:
                 font=("Verdana", 20),
                 width=2,
                 height=1,
-                command=lambda tipo_billete=columna: self.restar_billete(tipo_billete),
+                command=lambda bill_type=columna: self.substract_bill(bill_type),
             )
             button_restar.grid(row=1, column=columna*3, padx=15, pady=10)
 
             label_cantidad = customtkinter.CTkLabel(
                 self.sub_contenedor_billetes,
-                text=str(self.billetes_seleccionados[columna][1]),
+                text=str(self.selected_bills[columna][1]),
                 font=("Verdana", 20),
             )
             label_cantidad.grid(row=1, column=columna*3+1, padx=2, pady=10)
-            self.labels_billetes_seleccionados.append(label_cantidad)
+            self.labels_selected_bills.append(label_cantidad)
 
             button_sumar = customtkinter.CTkButton(
                 self.sub_contenedor_billetes,
@@ -206,7 +206,7 @@ class App:
                 font=("Verdana", 20),
                 width=3,
                 height=2,
-                command=lambda tipo_billete=columna: self.sumar_billete(tipo_billete),
+                command=lambda bill_type=columna: self.add_bill(bill_type),
             )
             button_sumar.grid(row=1, column=columna*3+2, padx=2, pady=10)
 
@@ -214,7 +214,7 @@ class App:
             self.sub_contenedor2,
             text="Enviar",
             font=("Verdana", 20),
-            command=self.enviar_solucion,
+            command=self.send_solution,
         )
         self.button_enviar.pack(pady=25)
 
